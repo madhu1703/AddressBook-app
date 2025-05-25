@@ -19,7 +19,10 @@ public class AddressBookController {
     public ResponseEntity<List<AddressBook>> getAllEntries() {
         return ResponseEntity.ok(service.getAllEntries());
     }
-
+    @GetMapping("/")
+    public String home() {
+        return "Welcome to Address Book Application!";
+    }
     @GetMapping("/{id}")
     public ResponseEntity<AddressBook> getEntryById(@PathVariable Long id) {
         return service.getEntryById(id)
