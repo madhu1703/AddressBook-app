@@ -19,35 +19,34 @@ public class AddressBookController {
     public ResponseEntity<List<AddressBook>> getAllEntries() {
         return ResponseEntity.ok(service.getAllEntries());
     }
+
     @GetMapping("/")
     public String home() {
         return "Welcome to Address Book Application!";
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<AddressBook> getEntryById(@PathVariable Long id) {
-        return service.getEntryById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        AddressBook addressBook = service.getEntryById(id);
+        return ResponseEntity.ok(addressBook);
     }
 
     @PostMapping
     public ResponseEntity<AddressBook> createEntry(@RequestBody AddressBook addressBook) {
-        return ResponseEntity.ok(service.createEntry(addressBook));
+        AddressBook createdEntry = service.createEntry(addressBook);
+        return ResponseEntity.ok(createdEntry);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<AddressBook> updateEntry(@PathVariable Long id, @RequestBody AddressBook updatedEntry) {
-        return service.updateEntry(id, updatedEntry)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        AddressBook updated = service.updateEntry(id, updatedEntry);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEntry(@PathVariable Long id) {
-        if (service.deleteEntry(id)) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        service.deleteEntry(id);
+        return ResponseEntity.noContent().build();
     }
 }
+
