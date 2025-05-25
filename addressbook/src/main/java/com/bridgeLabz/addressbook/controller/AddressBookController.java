@@ -1,7 +1,7 @@
 package com.bridgeLabz.addressbook.controller;
 
 import com.bridgeLabz.addressbook.model.AddressBook;
-import com.bridgeLabz.addressbook.repository.AddressBookRepository;
+import com.bridgeLabz.addressbook.service.AddressBookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,46 +13,33 @@ import java.util.List;
 public class AddressBookController {
 
     @Autowired
-    private AddressBookRepository addressBookRepository;
+    private AddressBookService service;
 
     @GetMapping
     public ResponseEntity<List<AddressBook>> getAllEntries() {
-        return ResponseEntity.ok(addressBookRepository.findAll());
+        return ResponseEntity.ok(service.getAllEntries());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AddressBook> getEntryById(@PathVariable Long id) {
-        return addressBookRepository.findById(id)
+        return service.getEntryById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<AddressBook> createEntry(@RequestBody AddressBook addressBook) {
-        AddressBook saved = addressBookRepository.save(addressBook);
-        return ResponseEntity.ok(saved);
+        return ResponseEntity.ok(service.createEntry(addressBook));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<AddressBook> updateEntry(@PathVariable Long id, @RequestBody AddressBook updatedEntry) {
-        return addressBookRepository.findById(id)
-                .map(existingEntry -> {
-                    existingEntry.setName(updatedEntry.getName());
-                    existingEntry.setAddress(updatedEntry.getAddress());
-                    existingEntry.setEmail(updatedEntry.getEmail());
-                    addressBookRepository.save(existingEntry);
-                    return ResponseEntity.ok(existingEntry);
-                })
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(service.updateEntry(id, updatedEntry));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEntry(@PathVariable Long id) {
-        if (addressBookRepository.existsById(id)) {
-            addressBookRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        service.deleteEntry(id);
+        return ResponseEntity.noContent().build();
     }
 }
