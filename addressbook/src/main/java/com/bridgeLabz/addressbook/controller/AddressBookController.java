@@ -34,12 +34,17 @@ public class AddressBookController {
 
     @PutMapping("/{id}")
     public ResponseEntity<AddressBook> updateEntry(@PathVariable Long id, @RequestBody AddressBook updatedEntry) {
-        return ResponseEntity.ok(service.updateEntry(id, updatedEntry));
+        return service.updateEntry(id, updatedEntry)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEntry(@PathVariable Long id) {
-        service.deleteEntry(id);
-        return ResponseEntity.noContent().build();
+        if (service.deleteEntry(id)) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

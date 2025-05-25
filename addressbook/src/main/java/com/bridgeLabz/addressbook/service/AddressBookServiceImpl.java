@@ -1,53 +1,48 @@
 package com.bridgeLabz.addressbook.service;
 
 import com.bridgeLabz.addressbook.model.AddressBook;
-import com.bridgeLabz.addressbook.repository.AddressBookRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class AddressBookServiceImpl implements AddressBookService {
 
-    @Autowired
-    private AddressBookRepository repository;
+    private final List<AddressBook> addressBookList = new ArrayList<>();
+    private final AtomicLong idCounter = new AtomicLong(1);
 
     @Override
     public List<AddressBook> getAllEntries() {
-        return repository.findAll();
+        return addressBookList;
     }
 
     @Override
     public Optional<AddressBook> getEntryById(Long id) {
-        return repository.findById(id);
+        return addressBookList.stream()
+                .filter(entry -> entry.getId().equals(id))
+                .findFirst();
     }
 
     @Override
     public AddressBook createEntry(AddressBook addressBook) {
-        return repository.save(addressBook);
+        addressBook.setId(idCounter.getAndIncrement());
+        addressBookList.add(addressBook);
+        return addressBook;
     }
 
     @Override
-    public AddressBook updateEntry(Long id, AddressBook updatedEntry) {
-        return repository.findById(id)
-                .map(entry -> {
-                    entry.setName(updatedEntry.getName());
-                    entry.setAddress(updatedEntry.getAddress());
-                    entry.setEmail(updatedEntry.getEmail());
-                    return repository.save(entry);
-                })
-                .orElseThrow(() -> new RuntimeException("Entry not found with ID: " + id));
+    public Optional<AddressBook> updateEntry(Long id, AddressBook updatedEntry) {
+        return getEntryById(id).map(existing -> {
+            existing.setName(updatedEntry.getName());
+            existing.setAddress(updatedEntry.getAddress());
+            existing.setEmail(updatedEntry.getEmail());
+            return existing;
+        });
     }
 
     @Override
-    public void deleteEntry(Long id) {
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
-        } else {
-            throw new RuntimeException("Entry not found with ID: " + id);
-        }
+    public boolean deleteEntry(Long id) {
+        return addressBookList.removeIf(entry -> entry.getId().equals(id));
     }
 }
-

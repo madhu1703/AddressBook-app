@@ -9,6 +9,7 @@ public interface AddressBookService {
     List<AddressBook> getAllEntries();
     Optional<AddressBook> getEntryById(Long id);
     AddressBook createEntry(AddressBook addressBook);
-    AddressBook updateEntry(Long id, AddressBook addressBook);
-    void deleteEntry(Long id);
+    Optional<AddressBook> updateEntry(Long id, AddressBook updatedEntry);
+    boolean deleteEntry(Long id);
 }
+
